@@ -123,7 +123,7 @@ def main():
             user_input(user_question)
 
     with st.sidebar:
-        st.image("img\Robot.jpg")
+        st.image(r"img/Robot.jpg")
         st.write("---")
 
         st.title("📁 PDF File's Section")
@@ -150,7 +150,7 @@ def main():
 
 
         st.write("---")
-        st.image("img\ChatGPT Image Apr 14, 2025, 04_27_49 PM.png")
+        st.image(r"img/ChatGPT Image Apr 14, 2025, 04_27_49 PM.png")
         st.markdown(
     """
     AI App created by 
