@@ -3,7 +3,7 @@
 An **AI-powered chatbot** built with **Streamlit, LangChain, FAISS, and Google Gemini AI** that allows users to upload and interact with **multiple PDF files**.  
 It performs **semantic search** over the documents and provides **context-aware answers** through a conversational interface.
 
-🔗 **Live Demo:** [Try it here](https://multipdfchatapp-22h.streamlit.app/)  
+🔗 **Live Demo:** [Try it here](https://hariss-chatbot.streamlit.app/)  
 
 ---
 
