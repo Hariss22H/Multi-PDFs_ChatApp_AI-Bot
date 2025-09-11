@@ -7,3 +7,4 @@ langchain-google-genai
 google-generativeai
 faiss-cpu
 pillow
+sentence-transformers
