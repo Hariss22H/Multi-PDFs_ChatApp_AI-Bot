@@ -30,23 +30,32 @@ def get_pdf_text(pdf_docs):
 
 
 def get_text_chunks(text):
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=2000, chunk_overlap=200)
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=100)
     chunks = text_splitter.split_text(text)
     return [chunk for chunk in chunks if chunk.strip()]
 
 
 def get_vector_store(text_chunks):
+    # Configure Gemini with API key
+    import google.generativeai as genai
+    genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
+
+    # Use smaller chunks to avoid errors
     embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
 
-    # Filter empty chunks
+    # Clean empty chunks
     text_chunks = [chunk for chunk in text_chunks if chunk.strip()]
 
-    # Reduce batch size if needed (optional fix if too many)
+    # Reduce size if too many chunks
     if len(text_chunks) > 100:
         text_chunks = text_chunks[:100]
 
-    vector_store = FAISS.from_texts(text_chunks, embedding=embeddings)
-    vector_store.save_local("faiss_index")
+    try:
+        vector_store = FAISS.from_texts(text_chunks, embedding=embeddings)
+        vector_store.save_local("faiss_index")
+    except Exception as e:
+        st.error("⚠️ Failed to create embeddings. Try with smaller PDFs or check your API key/quota.")
+
 
 
 
