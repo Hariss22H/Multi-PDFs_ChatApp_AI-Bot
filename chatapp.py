@@ -40,24 +40,34 @@ def get_vector_store(text_chunks):
 
 def get_conversational_chain():
     prompt_template = """
-    Answer the question as detailed as possible from the provided context. 
+    Answer the question as detailed as possible from the provided context.
     If the answer is not in the provided context just say, 
-    "answer is not available in the context". Do not provide the wrong answer.
-    
-    Context:\n {context}\n
-    Question: \n{question}\n
+    "answer is not available in the context". Don't provide wrong answers.
+
+    Context:
+    {context}
+
+    Question:
+    {question}
 
     Answer:
     """
 
     model = ChatGoogleGenerativeAI(
-        model="models/gemini-1.5-flash-latest", temperature=0.3
+        model="models/gemini-1.5-flash",   # ✅ use stable version
+        temperature=0.3
     )
 
-    prompt = PromptTemplate(template=prompt_template, input_variables=["context", "question"])
-    chain = load_qa_chain(model, chain_type="stuff", prompt=prompt)
+    prompt = PromptTemplate(
+        template=prompt_template,
+        input_variables=["context", "question"]
+    )
 
+    # ✅ new recommended usage
+    chain = load_qa_chain(model, chain_type="stuff", prompt=prompt)
     return chain
+
+
 
 
 def user_input(user_question):
@@ -65,6 +75,7 @@ def user_input(user_question):
         st.warning("⚠️ Please upload and process your PDF files first before asking a question.")
         return
 
+    embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
     new_db = FAISS.load_local("faiss_index", embeddings, allow_dangerous_deserialization=True)
     docs = new_db.similarity_search(user_question)
 
@@ -75,13 +86,16 @@ def user_input(user_question):
     chain = get_conversational_chain()
 
     try:
-        response = chain(
-            {"input_documents": docs, "question": user_question},
-            return_only_outputs=True
-        )
+        # ✅ use invoke instead of calling chain directly
+        response = chain.invoke({"input_documents": docs, "question": user_question})
         st.write("Reply:", response.get("output_text", "No response generated."))
-    except Exception:
-        st.error("⚠️ Oops! Something went wrong. Please try again.")
+    except Exception as e:
+        if "429" in str(e):
+            st.error("⚠️ You’ve reached the daily usage limit for the AI service. Please try again later.")
+        elif "404" in str(e):
+            st.error("⚠️ The selected model is not available. Try changing the model name in your code.")
+        else:
+            st.error("⚠️ Oops! Something went wrong. Please try again.")
 
 
 def main():
